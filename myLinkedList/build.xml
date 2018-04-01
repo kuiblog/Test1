@@ -1,0 +1,86 @@
+<project name="myLinkedList" basedir="." default="build">
+    <!--================================== module-dir defines ==================================-->
+    <property name="src.dir" value="${basedir}/src" />
+    <property name="test.dir" value="${basedir}/test" />
+    <property name="lib.dir" value="${basedir}/lib" />
+    <property name="build.dir" value="${basedir}/build" />
+    <property name="target.dir" value="${basedir}/target" />
+    <property name="resources.dir" value="${basedir}/resources" />
+    <property name="jar.file" value="${basedir}/${ant.project.name}.jar" />
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar" />
+        </fileset>
+    </path>
+    <!--================================== init target ==================================-->
+    <target name="init">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${target.dir}" />
+    </target>
+    <!--================================== clean target ==================================-->
+    <target name="clean">
+        <delete dir="${build.dir}" />
+        <delete file="${jar.file}" />
+        <delete dir="${target.dir}" />
+    </target>
+    <!--================================== jar target ==================================-->
+    <target name="jar">
+        <jar destfile="${jar.file}">
+            <fileset dir="${build.dir}">
+                <include name="**/*" />
+            </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="huawei.soft.GUI" />
+            </manifest>
+        </jar>
+    </target>
+    <!--================================== BUILD TARGETS ==================================-->
+    <target name="build" depends="clean,init,compile-src,jar" description="--> build the jar file from source." />
+    <target name="compile-src" depends="init">
+        <javac srcdir="${src.dir}" destdir="${build.dir}" deprecation="false" failonerror="true" debug="true" target="1.5" listfiles="true" encoding="utf-8" includeantruntime="false" />
+    </target>
+    <!--================================== RUN TARGETS ==================================-->
+    <target name="run">
+        <java classname="huawei.soft.GUI" failonerror="true">
+            <classpath>
+                <pathelement location="${jar.file}" />
+            </classpath>
+        </java>
+    </target>
+    <target name="debug">
+        <java classname="huawei.soft.GUI" failonerror="true" fork="true" inputstring="1">
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" />
+            <classpath>
+                <pathelement location="${jar.file}" />
+            </classpath>
+        </java>
+    </target>
+    <!--================================== junit target ==================================-->
+    <target name="junit" depends="build">
+        <junit printsummary="yes" haltonfailure="no" haltonerror="no" fork="yes" forkmode="once" >
+            <classpath>
+                <pathelement location="${build.dir}" />
+                <path refid="classpath" />
+                <pathelement path="${java.class.path}" />
+            </classpath>
+            <formatter type="plain" usefile="false" />
+            <formatter type="xml" />
+            <batchtest todir="${target.dir}">
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+    <!--================================== report target ==================================-->
+    <target name="report">
+        <junitreport todir="${target.dir}" tofile="junit_report.xml" >
+            <fileset dir="${target.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report todir="${target.dir}"/>
+        </junitreport>
+    </target>
+</project>
+
